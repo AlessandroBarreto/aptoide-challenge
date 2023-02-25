@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AWS from "aws-sdk";
 import CardImage from "./components/CardImage";
 import { Container, Grid } from "@mui/material";
+import { UploadButton } from "./components/UploadButton";
 
 AWS.config.update({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
@@ -17,9 +18,10 @@ function App() {
   const [error, setError] = useState("");
   const [images, setImages] = useState<any>([]);
 
-  //console.log(s3);
-
-  const handleUpload = async (e: any) => {
+  const handleUpload = async (e: {
+    target: HTMLInputElement & { files: Array<string> };
+  }) => {
+    console.log(typeof e);
     const file = e.target.files[0];
 
     if (!file) {
@@ -45,14 +47,12 @@ function App() {
       }
     };
 
-    const params = {
-      Bucket: "aptoide-challenge",
-      Key: `${Date.now()}.${file.name}`,
-      Body: file,
-    };
-    await s3.upload(params).promise();
-    //setImageUrl(Location);
-    //console.log(Location);
+    // const params = {
+    //   Bucket: "aptoide-challenge",
+    //   Key: `${Date.now()}.${file.name}`,
+    //   Body: file,
+    // };
+    // await s3.upload(params).promise();
 
     setError("");
   };
@@ -85,7 +85,7 @@ function App() {
       }}
     >
       <h1>Aptoide Challenge</h1>
-      <input type="file" onChange={handleUpload} />
+      <UploadButton onChange={handleUpload} />
       {error && <h3>{error}</h3>}
       <Grid container spacing={2} justifyContent="center" marginTop={10}>
         {images.map((image: any) => {
