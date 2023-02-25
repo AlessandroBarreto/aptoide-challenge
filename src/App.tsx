@@ -11,6 +11,7 @@ AWS.config.update({
   region: "eu-west-3",
   signatureVersion: "v4",
 });
+console.log(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY);
 const s3 = new AWS.S3();
 const bucketName = (keyName: string) =>
   `https://aptoide-challenge.s3.eu-west-3.amazonaws.com/${keyName}`;
@@ -35,7 +36,7 @@ function App() {
     if (!errorMsg) {
       const params = {
         Bucket: "aptoide-challenge",
-        Key: `${Date.now()}.${file.name}`,
+        Key: file.name,
         Body: file,
       };
       await s3.upload(params).promise();
@@ -48,12 +49,7 @@ function App() {
   };
 
   const handleDelete = async (key: any) => {
-    await s3
-      .deleteObject(
-        { Bucket: "aptoide-challenge", Key: key },
-        (err, data) => {}
-      )
-      .promise();
+    await s3.deleteObject({ Bucket: "aptoide-challenge", Key: key }).promise();
     setImgFile(key);
   };
 
@@ -90,8 +86,10 @@ function App() {
           return (
             <Grid key={image.Key} item xs={12} sm={6} md={4} lg={3}>
               <CardImage
+                title={image.Key}
                 img={bucketName(image.Key)}
                 onClickDelete={() => handleDelete(image.Key)}
+                onClickUpdate={() => console.log("edit?")}
               />
             </Grid>
           );
