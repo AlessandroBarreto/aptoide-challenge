@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AWS from "aws-sdk";
-import "./App.css";
+import CardImage from "./components/CardImage";
+import { Container, Grid } from "@mui/material";
 
 AWS.config.update({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
@@ -65,7 +66,6 @@ function App() {
         if (err) {
           console.log(err, err.stack);
         } else {
-          console.log(data.Contents);
           setImages(data.Contents);
         }
       }
@@ -75,18 +75,28 @@ function App() {
   console.log(images);
 
   return (
-    <div className="App">
+    <Container
+      maxWidth="xl"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "50px 0",
+      }}
+    >
+      <h1>Aptoide Challenge</h1>
       <input type="file" onChange={handleUpload} />
-
       {error && <h3>{error}</h3>}
-      {images.map((image: any) => {
-        return (
-          <div key={image.Key} style={{ marginTop: "10px" }}>
-            <img src={bucketName(image.Key)} alt="uploaded" />
-          </div>
-        );
-      })}
-    </div>
+      <Grid container spacing={2} justifyContent="center" marginTop={10}>
+        {images.map((image: any) => {
+          return (
+            <Grid key={image.Key} item xs={12} sm={6} md={4} lg={3}>
+              <CardImage img={bucketName(image.Key)} />
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Container>
   );
 }
 
