@@ -3,6 +3,7 @@ import AWS from "aws-sdk";
 import CardImage from "./components/CardImage";
 import { Container, Grid } from "@mui/material";
 import { UploadButton } from "./components/UploadButton";
+import { getErrorMsg } from "./utils";
 
 AWS.config.update({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
@@ -15,46 +16,35 @@ const bucketName = (keyName: string) =>
   `https://aptoide-challenge.s3.eu-west-3.amazonaws.com/${keyName}`;
 
 function App() {
-  const [error, setError] = useState("");
+  const [error, setError] = useState<String>("");
   const [images, setImages] = useState<any>([]);
+  const [imgFile, setImgFile] = useState<File>();
 
   const handleUpload = async (e: {
     target: HTMLInputElement & { files: Array<string> };
   }) => {
-    console.log(typeof e);
     const file = e.target.files[0];
 
     if (!file) {
       return;
     }
 
-    if (file.type !== "image/png") {
-      setError("File must be in PNG format");
-      return;
+    const errorMsg = getErrorMsg(file);
+    console.log(errorMsg);
+
+    if (!errorMsg) {
+      const params = {
+        Bucket: "aptoide-challenge",
+        Key: `${Date.now()}.${file.name}`,
+        Body: file,
+      };
+      await s3.upload(params).promise();
+
+      setImgFile(file);
+      setError("");
+    } else {
+      setError(errorMsg);
     }
-
-    if (file.size > 5 * 1000000) {
-      setError("File size must be less than 5MBs");
-      return;
-    }
-
-    let img = new Image();
-    img.src = window.URL.createObjectURL(file);
-    img.onload = () => {
-      const ratio = img.height / img.width;
-      if (ratio > 2 || ratio < 0.5) {
-        setError("Image ratio must not exceed 2");
-      }
-    };
-
-    // const params = {
-    //   Bucket: "aptoide-challenge",
-    //   Key: `${Date.now()}.${file.name}`,
-    //   Body: file,
-    // };
-    // await s3.upload(params).promise();
-
-    setError("");
   };
 
   useEffect(() => {
@@ -70,9 +60,7 @@ function App() {
         }
       }
     );
-  }, []);
-
-  console.log(images);
+  }, [imgFile]);
 
   return (
     <Container
