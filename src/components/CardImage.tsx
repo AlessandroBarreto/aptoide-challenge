@@ -9,9 +9,10 @@ import { IconButton } from "@mui/material";
 
 interface CardImageProps {
   img: string;
+  onClickDelete?: () => void;
 }
 
-export default function CardImage({ img }: CardImageProps) {
+export default function CardImage({ img, onClickDelete }: CardImageProps) {
   return (
     <Card sx={{ maxWidth: 345, margin: "auto" }}>
       <CardMedia component="img" alt="green iguana" height="140" image={img} />
@@ -24,7 +25,7 @@ export default function CardImage({ img }: CardImageProps) {
         <IconButton aria-label="edit" onClick={() => console.log("edit")}>
           <EditIcon sx={{ color: "#E8E2E2" }} />
         </IconButton>
-        <IconButton aria-label="delete" onClick={() => console.log("delete")}>
+        <IconButton aria-label="delete" onClick={onClickDelete}>
           <DeleteIcon sx={{ color: "#C3ACD0" }} />
         </IconButton>
       </CardActions>

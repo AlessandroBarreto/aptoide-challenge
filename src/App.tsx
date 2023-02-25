@@ -47,6 +47,16 @@ function App() {
     }
   };
 
+  const handleDelete = async (key: any) => {
+    await s3
+      .deleteObject(
+        { Bucket: "aptoide-challenge", Key: key },
+        (err, data) => {}
+      )
+      .promise();
+    setImgFile(key);
+  };
+
   useEffect(() => {
     s3.listObjectsV2(
       {
@@ -79,7 +89,10 @@ function App() {
         {images.map((image: any) => {
           return (
             <Grid key={image.Key} item xs={12} sm={6} md={4} lg={3}>
-              <CardImage img={bucketName(image.Key)} />
+              <CardImage
+                img={bucketName(image.Key)}
+                onClickDelete={() => handleDelete(image.Key)}
+              />
             </Grid>
           );
         })}
