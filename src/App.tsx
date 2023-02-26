@@ -53,6 +53,26 @@ function App() {
     setImgFile(key);
   };
 
+  const handleUpdate = async (key: any) => {
+    const newImageName = prompt("Write here a new image Name", key);
+
+    if (newImageName != key && newImageName) {
+      await s3
+        .copyObject({
+          Bucket: "aptoide-challenge",
+          CopySource: `/aptoide-challenge/${key}`,
+          Key: newImageName,
+        })
+        .promise();
+
+      await s3
+        .deleteObject({ Bucket: "aptoide-challenge", Key: key })
+        .promise();
+
+      setImgFile(key);
+    }
+  };
+
   useEffect(() => {
     s3.listObjectsV2(
       {
@@ -89,7 +109,7 @@ function App() {
                 title={image.Key}
                 img={bucketName(image.Key)}
                 onClickDelete={() => handleDelete(image.Key)}
-                onClickUpdate={() => console.log("edit?")}
+                onClickUpdate={() => handleUpdate(image.Key)}
               />
             </Grid>
           );
