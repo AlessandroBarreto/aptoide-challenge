@@ -24,7 +24,7 @@ export const useDataS3 = () => {
         }
       }
     );
-  }, [imgFile]);
+  }, [imgFile, Bucket]);
 
   // POST
   const handleUpload = async (e: {
@@ -57,7 +57,7 @@ export const useDataS3 = () => {
   const handleUpdate = async (Key: KeyType) => {
     const newImageName = prompt("Write here a new image Name", Key);
 
-    if (newImageName != Key && newImageName) {
+    if (newImageName !== Key && newImageName) {
       await s3
         .copyObject({
           Bucket,
