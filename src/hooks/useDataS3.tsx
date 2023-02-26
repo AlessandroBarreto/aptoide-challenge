@@ -18,9 +18,10 @@ export const useDataS3 = () => {
       },
       (err, data) => {
         if (err) {
-          console.log(err, err.stack);
+          setError(err.message);
         } else {
           setImages(data.Contents);
+          setError("");
         }
       }
     );
