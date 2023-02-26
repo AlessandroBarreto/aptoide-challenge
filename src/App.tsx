@@ -20,16 +20,16 @@ function App() {
     >
       <h1>Aptoide Challenge</h1>
       <UploadButton onChange={handleUpload} />
-      {error && <h3>{error}</h3>}
-      <Grid container spacing={2} justifyContent="center" marginTop={10}>
-        {images.map((image: any) => {
+      {error && <h3 style={{ color: "red" }}>{error}</h3>}
+      <Grid container spacing={2} justifyContent="center" marginTop={8}>
+        {images?.map(({ Key }) => {
           return (
-            <Grid key={image.Key} item xs={12} sm={6} md={4} lg={3}>
+            <Grid key={Key} item xs={12} sm={6} md={4} lg={3}>
               <CardImage
-                title={image.Key}
-                img={getBucketUrl(image.Key)}
-                onClickDelete={() => handleDelete(image.Key)}
-                onClickUpdate={() => handleUpdate(image.Key)}
+                title={Key}
+                img={getBucketUrl(Key)}
+                onClickDelete={() => handleDelete(Key)}
+                onClickUpdate={() => handleUpdate(Key)}
               />
             </Grid>
           );

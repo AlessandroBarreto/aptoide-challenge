@@ -1,14 +1,16 @@
+import { DeleteObjectRequest, ObjectList } from "aws-sdk/clients/s3";
 import { useEffect, useState } from "react";
 import { s3 } from "../aws/connectS3";
-import { getErrorMsg } from "../utils";
+import { getErrorMsg, KeyType } from "../utils";
 
 export const useDataS3 = () => {
-  const [images, setImages] = useState<any>([]);
-  const [imgFile, setImgFile] = useState<File>();
+  const [images, setImages] = useState<ObjectList | undefined>([]);
+  const [imgFile, setImgFile] = useState<KeyType>();
   const [error, setError] = useState<String>("");
 
   const Bucket = process.env.REACT_APP_AWS_BUCKET_NAME || "aptoide-challenge";
 
+  // GET
   useEffect(() => {
     s3.listObjectsV2(
       {
@@ -24,6 +26,7 @@ export const useDataS3 = () => {
     );
   }, [imgFile]);
 
+  // POST
   const handleUpload = async (e: {
     target: HTMLInputElement & { files: Array<string> };
   }) => {
@@ -50,7 +53,8 @@ export const useDataS3 = () => {
     }
   };
 
-  const handleUpdate = async (Key: any) => {
+  // PUT
+  const handleUpdate = async (Key: KeyType) => {
     const newImageName = prompt("Write here a new image Name", Key);
 
     if (newImageName != Key && newImageName) {
@@ -62,14 +66,15 @@ export const useDataS3 = () => {
         })
         .promise();
 
-      await s3.deleteObject({ Bucket, Key }).promise();
+      await s3.deleteObject({ Bucket, Key } as DeleteObjectRequest).promise();
 
       setImgFile(Key);
     }
   };
 
-  const handleDelete = async (Key: any) => {
-    await s3.deleteObject({ Bucket, Key }).promise();
+  // DELETE
+  const handleDelete = async (Key: KeyType) => {
+    await s3.deleteObject({ Bucket, Key } as DeleteObjectRequest).promise();
     setImgFile(Key);
   };
 

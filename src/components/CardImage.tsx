@@ -9,7 +9,7 @@ import { IconButton } from "@mui/material";
 
 interface CardImageProps {
   img: string;
-  title: string;
+  title: string | undefined;
   onClickDelete?: () => void;
   onClickUpdate?: () => void;
 }

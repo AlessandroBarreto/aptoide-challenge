@@ -1,3 +1,5 @@
+export type KeyType = string | undefined;
+
 const getErrorMsg = (file: File): String => {
   if (file.type !== "image/png") {
     return "File must be in PNG format";
@@ -28,7 +30,7 @@ const getImageRatio = (file: File): number => {
   return ratio;
 };
 
-const getBucketUrl = (keyName: string) =>
-  `https://aptoide-challenge.s3.eu-west-3.amazonaws.com/${keyName}`;
+const getBucketUrl = (keyName: KeyType) =>
+  `https://${process.env.REACT_APP_AWS_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${keyName}`;
 
 export { getErrorMsg, getBucketUrl };
