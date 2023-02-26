@@ -7,10 +7,12 @@ export const useDataS3 = () => {
   const [imgFile, setImgFile] = useState<File>();
   const [error, setError] = useState<String>("");
 
+  const Bucket = process.env.REACT_APP_AWS_BUCKET_NAME || "aptoide-challenge";
+
   useEffect(() => {
     s3.listObjectsV2(
       {
-        Bucket: "aptoide-challenge",
+        Bucket,
       },
       (err, data) => {
         if (err) {
@@ -32,11 +34,10 @@ export const useDataS3 = () => {
     }
 
     const errorMsg = getErrorMsg(file);
-    console.log(errorMsg);
 
     if (!errorMsg) {
       const params = {
-        Bucket: "aptoide-challenge",
+        Bucket,
         Key: file.name,
         Body: file,
       };
@@ -49,29 +50,27 @@ export const useDataS3 = () => {
     }
   };
 
-  const handleUpdate = async (key: any) => {
-    const newImageName = prompt("Write here a new image Name", key);
+  const handleUpdate = async (Key: any) => {
+    const newImageName = prompt("Write here a new image Name", Key);
 
-    if (newImageName != key && newImageName) {
+    if (newImageName != Key && newImageName) {
       await s3
         .copyObject({
-          Bucket: "aptoide-challenge",
-          CopySource: `/aptoide-challenge/${key}`,
+          Bucket,
+          CopySource: `/${Bucket}/${Key}`,
           Key: newImageName,
         })
         .promise();
 
-      await s3
-        .deleteObject({ Bucket: "aptoide-challenge", Key: key })
-        .promise();
+      await s3.deleteObject({ Bucket, Key }).promise();
 
-      setImgFile(key);
+      setImgFile(Key);
     }
   };
 
-  const handleDelete = async (key: any) => {
-    await s3.deleteObject({ Bucket: "aptoide-challenge", Key: key }).promise();
-    setImgFile(key);
+  const handleDelete = async (Key: any) => {
+    await s3.deleteObject({ Bucket, Key }).promise();
+    setImgFile(Key);
   };
 
   return { images, handleUpload, handleUpdate, handleDelete, error };
