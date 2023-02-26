@@ -1,92 +1,12 @@
-import { useEffect, useState } from "react";
-import AWS from "aws-sdk";
 import CardImage from "./components/CardImage";
 import { Container, Grid } from "@mui/material";
 import { UploadButton } from "./components/UploadButton";
-import { getErrorMsg } from "./utils";
-
-AWS.config.update({
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-  region: "eu-west-3",
-  signatureVersion: "v4",
-});
-console.log(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY);
-const s3 = new AWS.S3();
-const bucketName = (keyName: string) =>
-  `https://aptoide-challenge.s3.eu-west-3.amazonaws.com/${keyName}`;
+import { useDataS3 } from "./hooks/useDataS3";
+import { getBucketUrl } from "./utils";
 
 function App() {
-  const [error, setError] = useState<String>("");
-  const [images, setImages] = useState<any>([]);
-  const [imgFile, setImgFile] = useState<File>();
-
-  const handleUpload = async (e: {
-    target: HTMLInputElement & { files: Array<string> };
-  }) => {
-    const file = e.target.files[0];
-
-    if (!file) {
-      return;
-    }
-
-    const errorMsg = getErrorMsg(file);
-    console.log(errorMsg);
-
-    if (!errorMsg) {
-      const params = {
-        Bucket: "aptoide-challenge",
-        Key: file.name,
-        Body: file,
-      };
-      await s3.upload(params).promise();
-
-      setImgFile(file);
-      setError("");
-    } else {
-      setError(errorMsg);
-    }
-  };
-
-  const handleDelete = async (key: any) => {
-    await s3.deleteObject({ Bucket: "aptoide-challenge", Key: key }).promise();
-    setImgFile(key);
-  };
-
-  const handleUpdate = async (key: any) => {
-    const newImageName = prompt("Write here a new image Name", key);
-
-    if (newImageName != key && newImageName) {
-      await s3
-        .copyObject({
-          Bucket: "aptoide-challenge",
-          CopySource: `/aptoide-challenge/${key}`,
-          Key: newImageName,
-        })
-        .promise();
-
-      await s3
-        .deleteObject({ Bucket: "aptoide-challenge", Key: key })
-        .promise();
-
-      setImgFile(key);
-    }
-  };
-
-  useEffect(() => {
-    s3.listObjectsV2(
-      {
-        Bucket: "aptoide-challenge",
-      },
-      (err, data) => {
-        if (err) {
-          console.log(err, err.stack);
-        } else {
-          setImages(data.Contents);
-        }
-      }
-    );
-  }, [imgFile]);
+  const { images, handleUpload, handleUpdate, handleDelete, error } =
+    useDataS3();
 
   return (
     <Container
@@ -107,7 +27,7 @@ function App() {
             <Grid key={image.Key} item xs={12} sm={6} md={4} lg={3}>
               <CardImage
                 title={image.Key}
-                img={bucketName(image.Key)}
+                img={getBucketUrl(image.Key)}
                 onClickDelete={() => handleDelete(image.Key)}
                 onClickUpdate={() => handleUpdate(image.Key)}
               />

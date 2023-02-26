@@ -28,4 +28,7 @@ const getImageRatio = (file: File): number => {
   return ratio;
 };
 
-export { getErrorMsg };
+const getBucketUrl = (keyName: string) =>
+  `https://aptoide-challenge.s3.eu-west-3.amazonaws.com/${keyName}`;
+
+export { getErrorMsg, getBucketUrl };
