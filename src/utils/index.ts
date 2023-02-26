@@ -1,6 +1,6 @@
 export type KeyType = string | undefined;
 
-const getErrorMsg = (file: File): String => {
+const getErrorMsg = async (file: File): Promise<string> => {
   if (file.type !== "image/png") {
     return "File must be in PNG format";
   }
@@ -9,25 +9,37 @@ const getErrorMsg = (file: File): String => {
     return "File size must be less than 5MBs";
   }
 
-  //   const ratio = getImageRatio(file);
-  //   console.log("ratio", ratio);
-  //   if (ratio > 2 || ratio < 0.5) {
-  //     return "Image ratio must not exceed 2";
-  //   }
+  const imageUrl = URL.createObjectURL(file);
+  const ratio: any = await getImageRatio(imageUrl);
+  if (ratio > 2 || ratio < 0.5) {
+    return "Image ratio must not exceed 2";
+  }
 
   return "";
 };
 
-const getImageRatio = (file: File): number => {
-  let img = new Image();
-  let ratio = 0;
-  img.src = window.URL.createObjectURL(file);
-  img.onload = () => {
-    ratio = img.height / img.width;
-    console.log(ratio);
-  };
+const getImageRatio = (url: string) => {
+  const img = document.createElement("img");
 
-  return ratio;
+  const promise = new Promise((resolve, reject) => {
+    img.onload = () => {
+      // Natural size is the actual image size regardless of rendering.
+      // The 'normal' `width`/`height` are for the **rendered** size.
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+
+      // Resolve promise with the width and height
+      resolve(width / height);
+    };
+
+    // Reject promise on error
+    img.onerror = reject;
+  });
+
+  // Setting the source makes it start downloading and eventually call `onload`
+  img.src = url;
+
+  return promise;
 };
 
 const getBucketUrl = (keyName: KeyType) =>

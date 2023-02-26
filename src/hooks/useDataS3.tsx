@@ -36,7 +36,7 @@ export const useDataS3 = () => {
       return;
     }
 
-    const errorMsg = getErrorMsg(file);
+    const errorMsg = await getErrorMsg(file);
 
     if (!errorMsg) {
       const params = {
